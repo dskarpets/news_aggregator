@@ -103,4 +103,3 @@ Then open http://127.0.0.1:8000/
 
 - Course work for a web application for news aggregator with automatic translation
 - University: National Technical University of Ukraine "Igor Sikorsky Kyiv Polytechnic Institute"
->>>>>>> 67febcf743a610eef439cc749245ba85ffe4adc8
