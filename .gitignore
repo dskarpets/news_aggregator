@@ -1,0 +1,8 @@
+.venv
+venv/
+
+.env
+env/
+
+media/profile_pics/*
+!media/profile_pics/.gitkeep
