@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<h1>Панель адміністратора</h1>
+
+<h2 style="margin-top: 30px;">Стан зовнішніх API</h2>
+
+<table style="width: 80%; margin-top: 10px; border-collapse: collapse;">
+    <tr>
+        <th style="text-align: left; padding: 6px;">API</th>
+        <th style="text-align: left; padding: 6px;">Endpoint</th>
+        <th style="text-align: left; padding: 6px;">Status</th>
+    </tr>
+    {% for api in external_apis %}
+    <tr>
+        <td style="padding: 6px;">{{ api.name }}</td>
+        <td style="padding: 6px;"><a href="{{ api.url }}" target="_blank">{{ api.url }}</a></td>
+        <td style="padding: 6px;"><strong>{{ api.status }}</strong></td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3" style="padding: 6px;">Немає доступних API для перевірки.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr style="margin: 40px 0;">
+{{ block.super }}
+{% endblock %}

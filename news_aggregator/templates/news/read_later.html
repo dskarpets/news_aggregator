@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load translation_tags %}
+
+{% block title %}{% t 'Read Later' %}{% endblock %}
+
+{% block content %}
+<div class="container main-container">
+    <nav class="tabs">
+        <a href="{% url 'news:index' %}" class="tab">{% t 'Main Page' %}</a>
+        <a href="{% url 'news:read_later' %}" class="tab active">{% t 'Read Later' %}</a>
+    </nav>
+    
+    <div class="content-wrapper">
+        <aside class="filters-sidebar">
+            <h3>{% t 'Filters' %}</h3>
+            <form method="get" action="{% url 'news:read_later' %}" id="filterForm">
+                <div class="filter-group">
+                    <h4>{% t 'Category' %}</h4>
+                    <select name="category" class="filter-select" onchange="this.form.submit()">
+                        <option value="">{% t 'All Categories' %}</option>
+                        {% for code, name in categories %}
+                        <option value="{{ code }}" {% if selected_category == code %}selected{% endif %}>
+                            {% t name %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h4>{% t 'Source' %}</h4>
+                    <select name="source" class="filter-select" onchange="this.form.submit()">
+                        <option value="">{% t 'All Sources' %}</option>
+                        {% for code, name in sources %}
+                        <option value="{{ code }}" {% if selected_source == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if selected_category or selected_source %}
+                <button type="button" class="btn-clear-filters" onclick="window.location.href='{% url 'news:read_later' %}'">
+                    {% t 'Clear Filters' %}
+                </button>
+                {% endif %}
+            </form>
+        </aside>
+
+        <div class="news-content">
+            {% if saved_articles %}
+                {% for saved in saved_articles %}
+                <article class="news-card" onclick="window.location.href='{% url 'news:article_detail' saved.article.url %}'">
+                    <div class="news-image">
+                        {% if saved.article.image_url %}
+                        <img src="{{ saved.article.image_url }}" alt="{{ saved.article.title }}">
+                        {% else %}
+                        <div class="no-image"></div>
+                        {% endif %}
+                    </div>
+                    <div class="news-info">
+                        <h3>{{ saved.article.title }}</h3>
+                        <p>{{ saved.article.description|truncatewords:30 }}</p>
+                    </div>
+                    <button class="delete-btn" onclick="event.stopPropagation(); if(confirm('{% t "Remove from list?" %}')) window.location.href='{% url 'news:remove_article' saved.article.id %}'">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.5 5H4.16667H17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.66669 5V3.33333C6.66669 2.89131 6.84228 2.46738 7.15484 2.15482C7.4674 1.84226 7.89133 1.66667 8.33335 1.66667H11.6667C12.1087 1.66667 12.5327 1.84226 12.8452 2.15482C13.1578 2.46738 13.3334 2.89131 13.3334 3.33333V5M15.8334 5V16.6667C15.8334 17.1087 15.6578 17.5326 15.3452 17.8452C15.0327 18.1577 14.6087 18.3333 14.1667 18.3333H5.83335C5.39133 18.3333 4.9674 18.1577 4.65484 17.8452C4.34228 17.5326 4.16669 17.1087 4.16669 16.6667V5H15.8334Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8.33331 9.16667V14.1667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.6667 9.16667V14.1667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </article>
+                {% endfor %}
+
+                {% if saved_articles.has_other_pages %}
+                <div class="pagination">
+                    {% if saved_articles.has_previous %}
+                    <a href="?page={{ saved_articles.previous_page_number }}" class="page-btn">← {% t 'Previous' %}</a>
+                    {% endif %}
+
+                    <span class="page-number">{{ saved_articles.number }}</span>
+
+                    {% if saved_articles.has_next %}
+                    <a href="?page={{ saved_articles.next_page_number }}" class="page-btn">{% t 'Next' %} →</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <p class="no-news">{% t 'Your reading list is empty.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% t 'Sign Up' %}{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-left">
+        <h1 class="logo-large">News.</h1>
+    </div>
+    <div class="auth-right">
+        <div class="auth-form">
+            <h2>{% t 'Sign Up' %}</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>{% t 'Username' %}</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label>{% t 'Email' %}</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label>{% t 'Password' %}</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="form-group">
+                    <label>{% t 'Confirm Password' %}</label>
+                    {{ form.password2 }}
+                </div>
+                <button type="submit" class="btn btn-primary">{% t 'Register' %}</button>
+            </form>
+            <p class="auth-footer">
+                {% t 'Have an account?' %}
+                <a href="{% url 'users:login' %}"><strong>{% t 'Log in' %}</strong></a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

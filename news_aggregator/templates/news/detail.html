@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load translation_tags %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<div class="container article-container">
+    <div class="article-header">
+        <button class="back-btn" onclick="window.location.href='{% url 'news:index' %}'">
+            ← {% t 'Back' %}
+        </button>
+
+        <div class="article-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'news:save_article' %}" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="title" value="{{ article.title }}">
+                <input type="hidden" name="description" value="{{ article.description }}">
+                <input type="hidden" name="content" value="{{ article.content }}">
+                <input type="hidden" name="url" value="{{ article.url }}">
+                <input type="hidden" name="image_url" value="{{ article.image_url }}">
+                <input type="hidden" name="source" value="{{ article.source }}">
+                <button type="submit" class="btn-action">
+                    {% if is_saved %}✓ {% t 'Saved' %}{% else %}+ {% t 'Add to read later' %}{% endif %}
+                </button>
+            </form>
+            {% endif %}
+            
+            <button class="btn-action translate-btn" onclick="toggleTranslate()">
+                🌐 {% t 'Translate this news' %}
+            </button>
+        </div>
+    </div>
+    
+    <div class="translate-panel" id="translatePanel">
+        <label>{% t 'Select language' %}:</label>
+        <select onchange="translateArticle(this.value)">
+            <option value="">{% t 'Original' %}</option>
+            {% for code, name in translation_languages %}
+            <option value="{{ code }}" {% if current_lang == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <article class="article-detail">
+        <h1>{{ article.title }}</h1>
+        
+        {% if article.image_url %}
+        <div class="article-image">
+            <img src="{{ article.image_url }}" alt="{{ article.title }}">
+        </div>
+        {% endif %}
+        
+        <div class="article-meta">
+            {% if article.source %}
+            <span class="source">{{ article.source }}</span>
+            {% endif %}
+            {% if article.published_at %}
+            <span class="date">{{ article.published_at|date:"F d, Y" }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="article-body">
+            {% if article.description %}
+                <p class="lead">{{ article.description }}</p>
+            {% endif %}
+
+            {% if article.content %}
+                <p>{{ article.content }}</p>
+            {% else %}
+                <div class="article-note" style="margin-top: 1.5rem;">
+                    <p><em>{% t 'Note' %}: {% t 'Preview content is not available. Please visit the source website to read the full article.' %}</em></p>
+                </div>
+            {% endif %}
+
+            {% if article.url %}
+            <a href="{{ article.url }}" target="_blank" class="read-more-btn" style="margin-top: 2rem;">
+                {% t 'Read full article on source' %}
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33334 8H12.6667M12.6667 8L8.66668 4M12.6667 8L8.66668 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+    </article>
+</div>
+
+<script>
+function toggleTranslate() {
+    const panel = document.getElementById('translatePanel');
+    panel.classList.toggle('active');
+}
+
+function translateArticle(lang) {
+    if (lang) {
+        const currentUrl = window.location.pathname;
+        window.location.href = currentUrl + '?translate=' + lang;
+    } else {
+        window.location.href = window.location.pathname;
+    }
+}
+</script>
+{% endblock %}

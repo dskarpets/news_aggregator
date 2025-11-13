@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load translation_tags %}
+
+{% block title %}{% t 'Profile' %}{% endblock %}
+
+{% block content %}
+<div class="container profile-container">
+    <h2>{% t 'Profile' %}</h2>
+
+    <div class="profile-view" id="profileView">
+        <div class="profile-picture-section">
+            <div class="profile-avatar-wrapper">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ user.username|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-row">
+                <span class="info-label">{% t 'Username' %}:</span>
+                <span class="info-value">{{ user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">{% t 'Email' %}:</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">{% t 'First Name' %}:</span>
+                <span class="info-value">{{ user.first_name|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">{% t 'Last Name' %}:</span>
+                <span class="info-value">{{ user.last_name|default:"—" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <button type="button" class="btn btn-primary" onclick="toggleEditMode()">{% t 'Edit Profile' %}</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'news:index' %}'">{% t 'Back' %}</button>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="profile-form" id="profileForm" style="display: none;">
+        {% csrf_token %}
+
+        <div class="profile-picture-section">
+            <div class="profile-avatar-wrapper">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile" id="profileImage" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder" id="profileImage">
+                        {{ user.username|first|upper }}
+                    </div>
+                {% endif %}
+                <label for="id_profile_picture" class="avatar-edit-overlay">
+                    <span>📷</span>
+                </label>
+            </div>
+            <input type="file" id="id_profile_picture" name="profile_picture" accept="image/*" style="display: none;" onchange="previewImage(event)">
+        </div>
+
+        <div class="form-group">
+            <label>{% t 'Username' %}</label>
+            {{ form.username }}
+        </div>
+        <div class="form-group">
+            <label>{% t 'Email' %}</label>
+            {{ form.email }}
+        </div>
+        <div class="form-group">
+            <label>{% t 'First Name' %}</label>
+            {{ form.first_name }}
+        </div>
+        <div class="form-group">
+            <label>{% t 'Last Name' %}</label>
+            {{ form.last_name }}
+        </div>
+
+        <div class="profile-actions">
+            <button type="submit" class="btn btn-primary">{% t 'Save Changes' %}</button>
+            <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">{% t 'Cancel' %}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleEditMode() {
+    const viewMode = document.getElementById('profileView');
+    const editMode = document.getElementById('profileForm');
+
+    if (viewMode.style.display === 'none') {
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
+    } else {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+    }
+}
+
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const profileImage = document.getElementById('profileImage');
+            if (profileImage.tagName === 'IMG') {
+                profileImage.src = e.target.result;
+            } else {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'profile-avatar';
+                img.id = 'profileImage';
+                profileImage.parentNode.replaceChild(img, profileImage);
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}
